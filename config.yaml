@@ -1,0 +1,8 @@
+batch_size: 128
+
+latent_features: 4
+
+learning_rate: 0.001
+num_epochs: 10
+lambda_rec: 1.0
+lambda_kl: 0.001 # ưu tiên reconstruction loss hơn
