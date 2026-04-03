@@ -1,6 +1,7 @@
 from utils import run_training, vae_loss_fn_ver1, vae_loss_fn_ver2, vae_loss_fn_ver3
 import matplotlib.pyplot as plt
 from model import VAE
+from data import MNISTDataset, data_split
 
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, Dataset
@@ -12,6 +13,10 @@ with open("config.yaml", "r", encoding="utf-8") as f:
     config = yaml.safe_load(f)
 
 # Chia dữ liệu
+full_train_dataset = MNISTDataset(train=True, download=False)
+train_loader, val_loader = data_split(full_train_dataset=full_train_dataset, config=config)
+
+print("\n")
 
 # Device
 if torch.cuda.is_available():
@@ -26,4 +31,40 @@ latent_features = config['latent_features'] # 32
 model_vae = VAE(latent_features=latent_features)
 # Huấn luyện với 3 hàm loss khác nhau
 # loss 1 
-model_1, history_1 = run_training(model=model_vae, train_loader=, val_loader=, config=config, device=device, loss_fn=vae_loss_fn_ver1)
+model_1, history_1 = run_training(model=model_vae, train_loader=train_loader, val_loader=val_loader, config=config, device=device, loss_fn=vae_loss_fn_ver1)
+print("\n")
+# Loss 2
+model_2, history_2 = run_training(model=model_vae, train_loader=train_loader, val_loader=val_loader, config=config, device=device, loss_fn=vae_loss_fn_ver2)
+print("\n")
+# Loss 3
+model_3, history_3 = run_training(model=model_vae, train_loader=train_loader, val_loader=val_loader, config=config, device=device, loss_fn=vae_loss_fn_ver3)
+print("\n")
+
+epochs_range = range(1, len(history_1['train_loss']) + 1)
+
+plt.figure(figsize=(12, 6))
+
+# Vẽ đồ thị Train Loss
+plt.subplot(1, 2, 1)
+plt.plot(epochs_range, history_1['train_loss'], label='Train Loss MAE', color='blue', linestyle='-')
+plt.plot(epochs_range, history_2['train_loss'], label='Train Loss MAE and SSIM', color='red', linestyle='-')
+plt.plot(epochs_range, history_3['train_loss'], label='Train Loss MSE and SSIM', color = 'green', linestyle='-')
+plt.title('So sánh Train Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend()
+plt.grid(True)
+
+# Vẽ đồ thị Validation Loss
+plt.subplot(1, 2, 2)
+plt.plot(epochs_range, history_1['val_loss'], label='Val Loss MAE', color='blue', linestyle='-')
+plt.plot(epochs_range, history_2['val_loss'], label='Val Loss MAE and SSIM', color='red', linestyle='-')
+plt.plot(epochs_range, history_3['val_loss'], label='Val Loss MSE and SSIM', color = 'green', linestyle='-')
+plt.title('So sánh Validation Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend()
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()

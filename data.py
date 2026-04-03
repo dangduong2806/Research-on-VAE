@@ -1,4 +1,7 @@
 from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader, Dataset
+from torchvision import datasets, transforms
+
 # Xây dựng Wrapper cho Dataset
 class MNISTDataset(Dataset):
     def __init__(self, root="./data", train=True, download=False):
@@ -15,16 +18,20 @@ class MNISTDataset(Dataset):
     def __getitem__(self, index):
         img, label = self.dataset[index]
         return {'image': img, 'label': label}
+    
 
-# Khởi tạo Dataset và Dataloader
-full_train_dataset = MNISTDataset(train=True, download=False)
-# Chia thành tập train và validate
-total_size = len(full_train_dataset)
-train_size = int(0.8 * total_size)
-val_size = total_size - train_size
+def data_split(full_train_dataset, config):
+    # Chia thành tập train và validate
+    total_size = len(full_train_dataset)
+    train_size = int(0.8 * total_size)
+    val_size = total_size - train_size
 
-train_subset, val_subset = random_split(full_train_dataset, [train_size, val_size])
-print("=== PHÂN CHIA DỮ LIỆU ===")
-print(f"Tổng số ảnh gốc:     {total_size}")
-print(f"Số ảnh tập Train:    {len(train_subset)}")
-print(f"Số ảnh tập Validate: {len(val_subset)}\n")  
+    train_subset, val_subset = random_split(full_train_dataset, [train_size, val_size])
+    print("=== PHÂN CHIA DỮ LIỆU ===")
+    print(f"Tổng số ảnh gốc:     {total_size}")
+    print(f"Số ảnh tập Train:    {len(train_subset)}")
+    print(f"Số ảnh tập Validate: {len(val_subset)}\n") 
+    train_loader = DataLoader(train_subset, batch_size=config['batch_size'], shuffle=True) # Shuffle tập train
+    val_loader = DataLoader(dataset=val_subset, batch_size=config['batch_size'], shuffle=False) # Ko shuffle tập val 
+
+    return train_loader, val_loader
