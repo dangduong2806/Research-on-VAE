@@ -1,6 +1,6 @@
 batch_size: 128
 
-latent_features: 4
+latent_features: 32
 
 learning_rate: 0.001
 num_epochs: 10
