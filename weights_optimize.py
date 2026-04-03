@@ -28,6 +28,7 @@ def objective(trial, config):
         model=model_vae_trial,
         train_loader=train_loader,
         val_loader=val_loader,
+        config=config,
         device=device,
         loss_fn=vae_loss_fn_ver3
     )
