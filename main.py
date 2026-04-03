@@ -28,17 +28,18 @@ print("Device: ", device)
 
 latent_features = config['latent_features'] # 32
 
-# Khởi tạo model
-model_vae = VAE(latent_features=latent_features)
 # Huấn luyện với 3 hàm loss khác nhau
 # loss 1 
-model_1, history_1 = run_training(model=model_vae, train_loader=train_loader, val_loader=val_loader, config=config, device=device, loss_fn=vae_loss_fn_ver1)
+model_vae_1 = VAE(latent_features=latent_features)
+model_1, history_1 = run_training(model=model_vae_1, train_loader=train_loader, val_loader=val_loader, config=config, device=device, loss_fn=vae_loss_fn_ver1)
 print("\n")
 # Loss 2
-model_2, history_2 = run_training(model=model_vae, train_loader=train_loader, val_loader=val_loader, config=config, device=device, loss_fn=vae_loss_fn_ver2)
+model_vae_2 = VAE(latent_features=latent_features)
+model_2, history_2 = run_training(model=model_vae_2, train_loader=train_loader, val_loader=val_loader, config=config, device=device, loss_fn=vae_loss_fn_ver2)
 print("\n")
 # Loss 3
-model_3, history_3 = run_training(model=model_vae, train_loader=train_loader, val_loader=val_loader, config=config, device=device, loss_fn=vae_loss_fn_ver3)
+model_vae_3 = VAE(latent_features=latent_features)
+model_3, history_3 = run_training(model=model_vae_3, train_loader=train_loader, val_loader=val_loader, config=config, device=device, loss_fn=vae_loss_fn_ver3)
 print("\n")
 
 epochs_range = range(1, len(history_1['train_loss']) + 1)
