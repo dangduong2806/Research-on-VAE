@@ -143,3 +143,57 @@ def run_training(model, train_loader, val_loader, config, device, loss_fn = vae_
 
     print("Huấn luyện xong")
     return model, history
+
+
+###### T-SNE VAE 
+def train_tsne_encoder(model, dataloader, optimizer, epochs, device):
+    print("\n[Giai đoạn 1] Huấn luyện t-SNE Encoder...")
+    model.train()
+    model.to(device)
+
+    for epoch in range(epochs):
+        overall_loss = 0.0
+        progress_bar = tqdm(enumerate(dataloader), total=len(dataloader), desc=f"Encoder Epoch {epoch+1}/{epochs}")
+        
+        for i, (images, targets) in progress_bar:
+            images, targets = images.to(device), targets.to(device)
+            
+            optimizer.zero_grad()
+            mu, _ = model.encode(images) # Chỉ lấy output dự đoán 2D
+            
+            # Loss: Mean Squared Error so với tọa độ t-SNE chuẩn
+            loss = F.mse_loss(mu, targets)
+            loss.backward()
+            optimizer.step()
+            
+            overall_loss += loss.item()
+            progress_bar.set_postfix(loss=f"{loss.item():.5f}")
+
+def train_tsne_decoder(model, dataloader, optimizer, epochs, device):
+    print("\n[Giai đoạn 2] Huấn luyện t-SNE Decoder...")
+    model.train()
+    model.to(device)
+
+    for epoch in range(epochs):
+        overall_loss = 0.0
+        progress_bar = tqdm(enumerate(dataloader), total=len(dataloader), desc=f"Decoder Epoch {epoch+1}/{epochs}")
+        
+        for i, (images, _) in progress_bar:
+            images = images.to(device)
+            
+            optimizer.zero_grad()
+            # Bước 1: Lấy đặc trưng 2D từ Encoder (đã bị đóng băng)
+            with torch.no_grad():
+                mu, _ = model.encode(images)
+            
+            # Bước 2: Khôi phục ảnh từ tọa độ 2D
+            prediction = model.decode(mu)
+            
+            # Loss: MSE/BCE Loss cho quá trình tái tạo ảnh (Reconstruction)
+            loss = F.mse_loss(prediction, images, reduction='mean')
+            
+            loss.backward()
+            optimizer.step()
+            
+            overall_loss += loss.item()
+            progress_bar.set_postfix(loss=f"{loss.item():.5f}")
