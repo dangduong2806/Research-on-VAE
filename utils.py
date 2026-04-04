@@ -245,3 +245,47 @@ def visualize_tsne_latent_space(model, dataloader, device, num_samples=10000):
     
     plt.tight_layout()
     plt.show()
+
+
+def compare_constructions(tsne_model, dataloader, device, n_images=10):
+    print("\nĐang tạo ảnh so sánh...")
+    
+    # Lấy 1 batch dữ liệu từ dataloader
+    batch = next(iter(dataloader))
+    
+    # Lấy đủ số lượng ảnh cho 2 hàng (nrows=2)
+    images = batch['image'].to(device)[:n_images*2] 
+    
+    # 1. Chuẩn bị Ảnh Gốc (Ground truth)
+    # Loại bỏ kênh màu (channel) để vẽ: (B, 1, 32, 32) -> (B, 32, 32)
+    ground_truth = images.cpu().squeeze(1).numpy()
+
+    # 3. Chuẩn bị Ảnh từ t-SNE VAE
+    tsne_model.eval()
+    with torch.no_grad():
+        # Gọi thẳng tsne_model(images) nó sẽ trả về (output, mu, logvar) theo class TSNE_VAE
+        preds_tsne, _, _ = tsne_model(images)
+        preds_tsne = preds_tsne.cpu().squeeze(1).numpy()
+
+    # Hàm hỗ trợ vẽ lưới ảnh
+    def plot_images(axes, images_to_plot, title, nrows=2, ncols=n_images):
+        for i in range(nrows):
+            for j in range(ncols):
+                idx = i * ncols + j
+                ax = axes[i, j]
+                if idx < len(images_to_plot):
+                    ax.imshow(images_to_plot[idx], cmap='Greys')
+                ax.axis('off')
+    
+    # --- Vẽ biểu đồ ---
+    # Vẽ Ground Truth
+    fig1, axes1 = plt.subplots(2, n_images, figsize=(15, 3))
+    fig1.suptitle('Ảnh gốc (Ground Truths)', fontsize=16)
+    plot_images(axes1, ground_truth, 'Ảnh gốc (Ground Truths)')
+    plt.show()
+
+    # Vẽ t-SNE VAE
+    fig3, axes3 = plt.subplots(2, n_images, figsize=(15, 3))
+    fig3.suptitle('Tái tạo từ t-SNE VAE', fontsize=16)
+    plot_images(axes3, preds_tsne, 'Tái tạo từ t-SNE VAE')
+    plt.show()

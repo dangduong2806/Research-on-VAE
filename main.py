@@ -10,7 +10,7 @@ import yaml
 import torch
 import torch.optim as optim
 
-from utils import train_tsne_decoder, train_tsne_encoder, visualize_tsne_latent_space
+from utils import train_tsne_decoder, train_tsne_encoder, visualize_tsne_latent_space, compare_constructions
 from t_SNE_VAE import TSNE_VAE 
 # Đọc dữ liệu config
 with open("config.yaml", "r", encoding="utf-8") as f:
@@ -118,3 +118,11 @@ visualize_tsne_latent_space(
     num_samples=config['num_samples']
 )
 # So sánh kết quả tái tạo ảnh gốc
+print("\n=== SO SÁNH CHẤT LƯỢNG ẢNH TÁI TẠO ===")
+# Bạn có thể dùng model_1, model_2, hoặc model_3 làm đại diện cho Vanilla VAE
+compare_constructions(
+    tsne_model=tsne_model,
+    dataloader=val_loader,
+    device=device,
+    n_images=15 
+)
