@@ -16,3 +16,6 @@ lambda_ssim: 0.84
 #     lambda_rec: 0.4961493261011122
 #     lambda_kl: 0.0015276491877493211
 #     lambda_ssim: 0.7069747270146195
+
+dataset: "CIFAR10"
+in_channels: 3

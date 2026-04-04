@@ -2,7 +2,7 @@ from torch.utils.data import DataLoader, random_split
 from torch.utils.data import DataLoader, Dataset, TensorDataset
 from torchvision import datasets, transforms
 
-# Xây dựng Wrapper cho Dataset
+# MNIST
 class MNISTDataset(Dataset):
     def __init__(self, root="./data", train=True, download=False):
         # Đổi kích thước lên 32*32 và chuyển thành Tensor [0, 1]
@@ -20,6 +20,34 @@ class MNISTDataset(Dataset):
         return {'image': img, 'label': label}
     
 
+## CIFAR-10
+class CIFARDataset(Dataset):
+    def __init__(self, root="./data", train=True, download=False):
+        self.transform = transforms.Compose([
+            transforms.Resize(32), # CIFAR-10 vốn đã 32x32, nhưng giữ lại để đồng bộ
+            transforms.ToTensor()
+        ])
+        # Gọi dataset CIFAR10 thay vì MNIST
+        self.dataset = datasets.CIFAR10(root=root, train=train, download=download, transform=self.transform)
+
+    def __len__(self):
+        return len(self.dataset)
+    
+    def __getitem__(self, index):
+        img, label = self.dataset[index]
+        return {'image': img, 'label': label}
+
+# Tạo hàm hỗ trợ chọn Dataset
+def get_dataset(config):
+    dataset_name = config.get('dataset', 'MNIST')
+    if dataset_name == 'CIFAR10':
+        print("Đang tải dữ liệu CIFAR-10...")
+        return CIFARDataset(train=True, download=True)
+    else:
+        print("Đang tải dữ liệu MNIST...")
+        return MNISTDataset(train=True, download=True)
+    
+
 def data_split(full_train_dataset, config):
     # Chia thành tập train và validate
     total_size = len(full_train_dataset)
@@ -35,6 +63,7 @@ def data_split(full_train_dataset, config):
     val_loader = DataLoader(dataset=val_subset, batch_size=config['batch_size'], shuffle=False) # Ko shuffle tập val 
 
     return train_loader, val_loader
+
 
 ### T-SNE
 from sklearn.manifold import TSNE
