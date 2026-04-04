@@ -10,7 +10,7 @@ import yaml
 import torch
 import torch.optim as optim
 
-from utils import train_tsne_decoder, train_tsne_encoder
+from utils import train_tsne_decoder, train_tsne_encoder, visualize_tsne_latent_space
 from t_SNE_VAE import TSNE_VAE 
 # Đọc dữ liệu config
 with open("config.yaml", "r", encoding="utf-8") as f:
@@ -109,3 +109,12 @@ train_tsne_decoder(
 )
 
 print("\nHoàn tất quá trình huấn luyện t-SNE VAE!")
+
+# Trực quan không gian tiềm ẩn 
+visualize_tsne_latent_space(
+    model=tsne_model,
+    dataloader=val_loader,
+    device=device,
+    num_samples=config['num_samples']
+)
+# So sánh kết quả tái tạo ảnh gốc
