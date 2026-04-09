@@ -7,6 +7,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import numpy as np
 import copy
+import time
 
 # Hàm loss
 def vae_loss_fn_ver1(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssim=0.84):
@@ -68,6 +69,9 @@ def vae_loss_fn_ver3(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssi
 
 # Vòng lặp huấn luyện
 def run_training(model, train_loader, val_loader, config, device, loss_fn = vae_loss_fn_ver1):
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    model_path = f"best_model_{timestamp}.pth"
+    
     model.train()
     model.to(device)
 
@@ -155,7 +159,7 @@ def run_training(model, train_loader, val_loader, config, device, loss_fn = vae_
             best_val_loss = average_val_loss
             early_stop_counter = 0
             # best_model_weights = copy.deepcopy(model.state_dict())
-            torch.save(model.state_dict(), 'best_model.pth')
+            torch.save(model.state_dict(), model_path)
             print(f"--> Validation loss cải thiện. Đã lưu lại trọng số model tốt nhất!\n")
         else:
             early_stop_counter += 1
@@ -166,7 +170,7 @@ def run_training(model, train_loader, val_loader, config, device, loss_fn = vae_
     print("Huấn luyện xong")
     # Khôi phục lại trọng số tốt nhất trước khi trả model về
     # model.load_state_dict(best_model_weights)
-    model.load_state_dict(torch.load("best_model.pth"))
+    model.load_state_dict(torch.load(model_path))
     
     print("Đã tải lại trọng số của epoch có Validation Loss thấp nhất.")
     return model, history
