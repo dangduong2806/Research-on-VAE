@@ -31,7 +31,7 @@ def objective(trial, config):
         val_loader=val_loader,
         config=trial_config,
         device=device,
-        loss_fn=vae_loss_fn_ver3
+        loss_fn=vae_loss_fn_ver2
     )
 
     # Lấy giá trị validation loss của epoch cuối cùng làm thước đo
@@ -77,7 +77,7 @@ print("\nQuá trình tìm kiếm đã hoàn tất!")
 
 # --- IN RA KẾT QUẢ TỐT NHẤT ---
 best_trial = study.best_trial
-print(f"Giá trị Validation Loss cho Loss Function 3 tốt nhất đạt được: {best_trial.value:.4f}")
+print(f"Giá trị Validation Loss cho Loss Function 2 tốt nhất đạt được: {best_trial.value:.4f}")
 print("Bộ tham số hoàn hảo nhất là:")
 for key, value in best_trial.params.items():
     print(f"    {key}: {value}")
