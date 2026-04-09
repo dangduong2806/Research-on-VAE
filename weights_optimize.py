@@ -66,7 +66,6 @@ print("Bắt đầu quá trình Bayesian Optimization với Optuna...")
 # TPESampler sử dụng Expected Improvement (EI) làm acquisition function
 bo_sampler = TPESampler(
     n_startup_trials = 5,
-    multivariable=True,
     seed=42
 )
 study = optuna.create_study(direction="minimize", sampler=bo_sampler)
