@@ -19,7 +19,7 @@ with open("config.yaml", "r", encoding="utf-8") as f:
     config = yaml.safe_load(f)
 
 # Chia dữ liệu
-full_train_dataset = CIFARDataset(train=True, download=True)
+full_train_dataset = CIFARDataset(train=True, download=False)
 train_loader, val_loader = data_split(full_train_dataset=full_train_dataset, config=config)
 
 print("\n")
