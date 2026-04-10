@@ -23,7 +23,7 @@ def objective(trial, config):
     trial_config['lambda_kl'] = suggested_lambda_kl
     trial_config['lambda_ssim'] = suggested_lambda_ssim
 
-    trial_config['num_epochs'] = 15 # 3-5. Sau khi tìm được bộ lambda tốt => train full
+    trial_config['num_epochs'] = 5 # 3-5. Sau khi tìm được bộ lambda tốt => train full
 
     model_vae_trial = VAE(latent_features=trial_config['latent_features'])
 
@@ -34,7 +34,7 @@ def objective(trial, config):
         val_loader=val_loader,
         config=trial_config,
         device=device,
-        loss_fn=vae_loss_fn_ver2
+        loss_fn=vae_loss_fn_ver3
     )
 
     # Lấy giá trị validation loss của epoch cuối cùng làm thước đo
@@ -83,7 +83,7 @@ print("\nQuá trình tìm kiếm đã hoàn tất!")
 
 # --- IN RA KẾT QUẢ TỐT NHẤT ---
 best_trial = study.best_trial
-print(f"Giá trị Validation Loss cho Loss Function 2 tốt nhất đạt được: {best_trial.value:.4f}")
+print(f"Giá trị Validation Loss cho Loss Function 3 tốt nhất đạt được: {best_trial.value:.4f}")
 print("Bộ tham số hoàn hảo nhất là:")
 for key, value in best_trial.params.items():
     print(f"    {key}: {value}")
