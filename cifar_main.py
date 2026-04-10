@@ -34,18 +34,23 @@ print("Device: ", device)
 latent_features = config['latent_features'] # 32
 in_channels = config['in_channels']
 
+data_set = "CIFAR10"
+
 # Huấn luyện với 3 hàm loss khác nhau
 # loss 1 
 model_vae_1 = CIFAR_VAE(latent_features=latent_features, in_channels=in_channels)
-model_1, history_1 = run_training(model=model_vae_1, train_loader=train_loader, val_loader=val_loader, config=config, device=device, loss_fn=vae_loss_fn_ver1)
+name_loss_1 = "loss_fn_1"
+model_1, history_1 = run_training(model=model_vae_1, train_loader=train_loader, val_loader=val_loader, config=config, device=device, dataset=data_set, name_loss=name_loss_1, loss_fn=vae_loss_fn_ver1)
 print("\n")
 # Loss 2
 model_vae_2 = CIFAR_VAE(latent_features=latent_features, in_channels=in_channels)
-model_2, history_2 = run_training(model=model_vae_2, train_loader=train_loader, val_loader=val_loader, config=config, device=device, loss_fn=vae_loss_fn_ver2)
+name_loss_2 = "loss_fn_2"
+model_2, history_2 = run_training(model=model_vae_2, train_loader=train_loader, val_loader=val_loader, config=config, device=device,dataset=data_set, name_loss=name_loss_2, loss_fn=vae_loss_fn_ver2)
 print("\n")
 # Loss 3
 model_vae_3 = CIFAR_VAE(latent_features=latent_features, in_channels=in_channels)
-model_3, history_3 = run_training(model=model_vae_3, train_loader=train_loader, val_loader=val_loader, config=config, device=device, loss_fn=vae_loss_fn_ver3)
+name_loss_3 = "loss_fn_3"
+model_3, history_3 = run_training(model=model_vae_3, train_loader=train_loader, val_loader=val_loader, config=config, device=device,dataset=data_set, name_loss=name_loss_3, loss_fn=vae_loss_fn_ver3)
 print("\n")
 
 epochs_range = range(1, len(history_1['train_loss']) + 1)
@@ -78,7 +83,7 @@ plt.tight_layout()
 # plt.show()
 
 # Lưu ảnh:
-plt.savefig('loss_comparison.png', dpi=300, bbox_inches='tight')
+plt.savefig('loss_comparison_CIFAR.png', dpi=300, bbox_inches='tight')
 print("\nĐã lưu biểu đồ thành công vào file 'loss_comparison_CIFAR_10.png'")
 
 ### TSNE

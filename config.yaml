@@ -33,16 +33,16 @@ MNIST:
 
 CIFAR10:
   loss_fn_1:
-    lambda_rec:
-    lambda_kl:
-    lambda_ssim:
+    lambda_rec: 0.11980753746199224
+    lambda_kl: 0.013051163408541698
+    lambda_ssim: 1.1947334276180015
 
   loss_fn_2:
-    lambda_rec:
-    lambda_kl:
-    lambda_ssim:
+    lambda_rec: 1.1241800333988146
+    lambda_kl: 0.00021920038547831362
+    lambda_ssim: 0.15349362024478594
 
   loss_fn_3:
-    lambda_rec:
-    lambda_kl:
-    lambda_ssim:
+    lambda_rec: 2.1333715266419033
+    lambda_kl: 0.00012611236054600722
+    lambda_ssim: 0.1090941533510366
