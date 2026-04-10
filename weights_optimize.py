@@ -4,8 +4,10 @@ import torch
 import yaml
 from data import MNISTDataset, data_split
 from model import VAE
-from utils import vae_loss_fn_ver3, vae_loss_fn_ver1, vae_loss_fn_ver2, run_training
+from utils import vae_loss_fn_ver3, vae_loss_fn_ver1, vae_loss_fn_ver2, run_training, run_training_optim
 from optuna.samplers import TPESampler
+
+
 
 def objective(trial, config):
     # Giảm ko gian tìm kiếm
@@ -26,7 +28,7 @@ def objective(trial, config):
     model_vae_trial = VAE(latent_features=trial_config['latent_features'])
 
     # Huấn luyện
-    _, history = run_training(
+    _, history = run_training_optim(
         model=model_vae_trial,
         train_loader=train_loader,
         val_loader=val_loader,
