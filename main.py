@@ -31,98 +31,102 @@ print("Device: ", device)
 
 latent_features = config['latent_features'] # 32
 
-# # Huấn luyện với 3 hàm loss khác nhau
-# # loss 1 
-# model_vae_1 = VAE(latent_features=latent_features)
-# model_1, history_1 = run_training(model=model_vae_1, train_loader=train_loader, val_loader=val_loader, config=config, device=device, loss_fn=vae_loss_fn_ver1)
-# print("\n")
-# # Loss 2
-# model_vae_2 = VAE(latent_features=latent_features)
-# model_2, history_2 = run_training(model=model_vae_2, train_loader=train_loader, val_loader=val_loader, config=config, device=device, loss_fn=vae_loss_fn_ver2)
-# print("\n")
-# # Loss 3
-# model_vae_3 = VAE(latent_features=latent_features)
-# model_3, history_3 = run_training(model=model_vae_3, train_loader=train_loader, val_loader=val_loader, config=config, device=device, loss_fn=vae_loss_fn_ver3)
-# print("\n")
+data_set = "MNIST"
+# Huấn luyện với 3 hàm loss khác nhau
+# loss 1 
+model_vae_1 = VAE(latent_features=latent_features)
+name_loss_1 = "loss_fn_1"
+model_1, history_1 = run_training(model=model_vae_1, train_loader=train_loader, val_loader=val_loader, config=config, device=device, dataset=data_set, name_loss=name_loss_1, loss_fn=vae_loss_fn_ver1)
+print("\n")
+# Loss 2
+model_vae_2 = VAE(latent_features=latent_features)
+name_loss_2 = "loss_fn_2"
+model_2, history_2 = run_training(model=model_vae_2, train_loader=train_loader, val_loader=val_loader, config=config, device=device, dataset=data_set, name_loss=name_loss_2, loss_fn=vae_loss_fn_ver2)
+print("\n")
+# Loss 3
+model_vae_3 = VAE(latent_features=latent_features)
+name_loss_3 = "loss_fn_3"
+model_3, history_3 = run_training(model=model_vae_3, train_loader=train_loader, val_loader=val_loader, config=config, device=device, dataset=data_set, name_loss=name_loss_3, loss_fn=vae_loss_fn_ver3)
+print("\n")
 
-# epochs_range = range(1, len(history_1['train_loss']) + 1)
+epochs_range = range(1, len(history_1['train_loss']) + 1)
 
-# plt.figure(figsize=(12, 6))
+plt.figure(figsize=(12, 6))
 
-# # Vẽ đồ thị Train Loss
-# plt.subplot(1, 2, 1)
-# plt.plot(epochs_range, history_1['train_loss'], label='Train Loss MAE', color='blue', linestyle='-')
-# plt.plot(epochs_range, history_2['train_loss'], label='Train Loss MAE and SSIM', color='red', linestyle='-')
-# plt.plot(epochs_range, history_3['train_loss'], label='Train Loss MSE and SSIM', color = 'green', linestyle='-')
-# plt.title('So sánh Train Loss')
-# plt.xlabel('Epoch')
-# plt.ylabel('Loss')
-# plt.legend()
-# plt.grid(True)
+# Vẽ đồ thị Train Loss
+plt.subplot(1, 2, 1)
+plt.plot(epochs_range, history_1['train_loss'], label='Train Loss MAE', color='blue', linestyle='-')
+plt.plot(epochs_range, history_2['train_loss'], label='Train Loss MAE and SSIM', color='red', linestyle='-')
+plt.plot(epochs_range, history_3['train_loss'], label='Train Loss MSE and SSIM', color = 'green', linestyle='-')
+plt.title('So sánh Train Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend()
+plt.grid(True)
 
-# # Vẽ đồ thị Validation Loss
-# plt.subplot(1, 2, 2)
-# plt.plot(epochs_range, history_1['val_loss'], label='Val Loss MAE', color='blue', linestyle='-')
-# plt.plot(epochs_range, history_2['val_loss'], label='Val Loss MAE and SSIM', color='red', linestyle='-')
-# plt.plot(epochs_range, history_3['val_loss'], label='Val Loss MSE and SSIM', color = 'green', linestyle='-')
-# plt.title('So sánh Validation Loss')
-# plt.xlabel('Epoch')
-# plt.ylabel('Loss')
-# plt.legend()
-# plt.grid(True)
+# Vẽ đồ thị Validation Loss
+plt.subplot(1, 2, 2)
+plt.plot(epochs_range, history_1['val_loss'], label='Val Loss MAE', color='blue', linestyle='-')
+plt.plot(epochs_range, history_2['val_loss'], label='Val Loss MAE and SSIM', color='red', linestyle='-')
+plt.plot(epochs_range, history_3['val_loss'], label='Val Loss MSE and SSIM', color = 'green', linestyle='-')
+plt.title('So sánh Validation Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend()
+plt.grid(True)
 
-# plt.tight_layout()
-# # plt.show()
+plt.tight_layout()
+# plt.show()
 
-# # Lưu ảnh:
-# plt.savefig('loss_comparison.png', dpi=300, bbox_inches='tight')
-# print("\nĐã lưu biểu đồ thành công vào file 'loss_comparison.png'")
+# Lưu ảnh:
+plt.savefig('loss_comparison.png', dpi=300, bbox_inches='tight')
+print("\nĐã lưu biểu đồ thành công vào file 'loss_comparison.png'")
 
 ### TSNE
-base_vae = VAE(latent_features=latent_features)
-tsne_model = TSNE_VAE(base_vae=base_vae, latent_features=latent_features)
+# base_vae = VAE(latent_features=latent_features)
+# tsne_model = TSNE_VAE(base_vae=base_vae, latent_features=latent_features)
 
-# Dataloader
-tsne_loader = create_tsne_dataloader(train_loader=train_loader, batch_size=config['batch_size'], device=device)
+# # Dataloader
+# tsne_loader = create_tsne_dataloader(train_loader=train_loader, batch_size=config['batch_size'], device=device)
 
-# Huấn luyện Encoder
-encoder_optimzer = optim.Adam(tsne_model.parameters(), lr=config['learning_rate'])
-train_tsne_encoder(
-    model=tsne_model,
-    dataloader=tsne_loader,
-    optimizer=encoder_optimzer,
-    epochs=10,
-    device=device
-)
+# # Huấn luyện Encoder
+# encoder_optimzer = optim.Adam(tsne_model.parameters(), lr=config['learning_rate'])
+# train_tsne_encoder(
+#     model=tsne_model,
+#     dataloader=tsne_loader,
+#     optimizer=encoder_optimzer,
+#     epochs=10,
+#     device=device
+# )
 
-# Đóng băng Encoder sau khi train xong
-tsne_model.freeze_encoder()
+# # Đóng băng Encoder sau khi train xong
+# tsne_model.freeze_encoder()
 
-# Huấn luyện decoder
-decoder_optimizer = optim.Adam(filter(lambda p: p.requires_grad, tsne_model.parameters()), lr=config['learning_rate'])
-train_tsne_decoder(
-    model=tsne_model,
-    dataloader=tsne_loader,
-    optimizer=decoder_optimizer,
-    epochs=10,
-    device=device
-)
+# # Huấn luyện decoder
+# decoder_optimizer = optim.Adam(filter(lambda p: p.requires_grad, tsne_model.parameters()), lr=config['learning_rate'])
+# train_tsne_decoder(
+#     model=tsne_model,
+#     dataloader=tsne_loader,
+#     optimizer=decoder_optimizer,
+#     epochs=10,
+#     device=device
+# )
 
-print("\nHoàn tất quá trình huấn luyện t-SNE VAE!")
+# print("\nHoàn tất quá trình huấn luyện t-SNE VAE!")
 
-# Trực quan không gian tiềm ẩn 
-visualize_tsne_latent_space(
-    model=tsne_model,
-    dataloader=val_loader,
-    device=device,
-    num_samples=config['num_samples']
-)
-# So sánh kết quả tái tạo ảnh gốc
-print("\n=== SO SÁNH CHẤT LƯỢNG ẢNH TÁI TẠO ===")
-# Bạn có thể dùng model_1, model_2, hoặc model_3 làm đại diện cho Vanilla VAE
-compare_constructions(
-    tsne_model=tsne_model,
-    dataloader=val_loader,
-    device=device,
-    n_images=15 
-)
+# # Trực quan không gian tiềm ẩn 
+# visualize_tsne_latent_space(
+#     model=tsne_model,
+#     dataloader=val_loader,
+#     device=device,
+#     num_samples=config['num_samples']
+# )
+# # So sánh kết quả tái tạo ảnh gốc
+# print("\n=== SO SÁNH CHẤT LƯỢNG ẢNH TÁI TẠO ===")
+# # Bạn có thể dùng model_1, model_2, hoặc model_3 làm đại diện cho Vanilla VAE
+# compare_constructions(
+#     tsne_model=tsne_model,
+#     dataloader=val_loader,
+#     device=device,
+#     n_images=15 
+# )

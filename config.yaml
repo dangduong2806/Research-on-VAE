@@ -14,3 +14,35 @@ lambda_ssim: 0.84
 
 dataset: "CIFAR10"
 in_channels: 3
+
+MNIST:
+  loss_fn_1:
+    lambda_rec: 1.8361096041714062
+    lambda_kl: 0.00029380279387035364
+    lambda_ssim: 0.5523841089749877
+
+  loss_fn_2:
+    lambda_rec: 0.5660607765721113
+    lambda_kl: 0.0001824685854793579
+    lambda_ssim: 1.6305732240144095
+
+  loss_fn_3:
+    lambda_rec: 2.1333715266419033
+    lambda_kl: 0.00012611236054600722
+    lambda_ssim: 0.1090941533510366
+
+CIFAR10:
+  loss_fn_1:
+    lambda_rec:
+    lambda_kl:
+    lambda_ssim:
+
+  loss_fn_2:
+    lambda_rec:
+    lambda_kl:
+    lambda_ssim:
+
+  loss_fn_3:
+    lambda_rec:
+    lambda_kl:
+    lambda_ssim:

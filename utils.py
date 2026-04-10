@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import copy
 import time
+from datetime import datetime
 
 # Hàm loss
 def vae_loss_fn_ver1(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssim=0.84):
@@ -68,8 +69,8 @@ def vae_loss_fn_ver3(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssi
 
 
 # Vòng lặp huấn luyện
-def run_training(model, train_loader, val_loader, config, device, loss_fn = vae_loss_fn_ver1):
-    timestamp = time.strftime("%Y%m%d_%H%M%S")
+def run_training(model, train_loader, val_loader, config, device, dataset, name_loss, loss_fn = vae_loss_fn_ver1):
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     model_path = f"best_model_{timestamp}.pth"
     
     model.train()
@@ -88,6 +89,8 @@ def run_training(model, train_loader, val_loader, config, device, loss_fn = vae_
     best_val_loss = float('inf')
     early_stop_counter = 0
     # best_model_weights = copy.deepcopy(model.state_dict()) # Biến lưu trữ trọng số tốt nhất
+
+    loss_config = config[dataset][name_loss]
 
     # Vòng lặp epoch
     for epoch_idx in range(config['num_epochs']):
@@ -108,9 +111,9 @@ def run_training(model, train_loader, val_loader, config, device, loss_fn = vae_
             loss = loss_fn(
                 model=model,
                 batch=x,
-                lambda_rec=config['lambda_rec'],
-                lambda_kl=config['lambda_kl'],
-                lambda_ssim=config['lambda_ssim']
+                lambda_rec=loss_config['lambda_rec'],
+                lambda_kl=loss_config['lambda_kl'],
+                lambda_ssim=loss_config['lambda_ssim']
             )
             # Backpropagation
             loss.backward()
