@@ -5,15 +5,15 @@ import yaml
 from data import MNISTDataset, data_split, CIFARDataset
 from model import VAE
 from cifar_model import CIFAR_VAE
-from utils import vae_loss_fn_ver3, vae_loss_fn_ver1, vae_loss_fn_ver2, run_training
+from utils import vae_loss_fn_ver3, vae_loss_fn_ver1, vae_loss_fn_ver2, run_training, run_training_optim
 from optuna.samplers import TPESampler
 
 def objective(trial, config):
-    suggested_lambda_rec = trial.suggest_float('lambda_rec', 0.1, 3.0)
+    suggested_lambda_rec = trial.suggest_float('lambda_rec', 0.3, 2.0)
     # KL loss thường nhỏ => Tìm trong không gian logarit
-    suggested_lambda_kl = trial.suggest_float('lambda_kl', 1e-4, 1e-1, log=True)
+    suggested_lambda_kl = trial.suggest_float('lambda_kl', 1e-4, 1e-2, log=True)
 
-    suggested_lambda_ssim = trial.suggest_float('lambda_ssim', 0.1, 3.0)
+    suggested_lambda_ssim = trial.suggest_float('lambda_ssim', 0.3, 2.0)
 
     # Tạo bản sao của config và cập nhật các trọng số mới
     trial_config = copy.deepcopy(config)
@@ -21,13 +21,13 @@ def objective(trial, config):
     trial_config['lambda_kl'] = suggested_lambda_kl
     trial_config['lambda_ssim'] = suggested_lambda_ssim
 
-    trial_config['num_epochs'] = 5 # 3-5. Sau khi tìm được bộ lambda tốt => train full
+    trial_config['num_epochs'] = 15 # 3-5. Sau khi tìm được bộ lambda tốt => train full
 
     # model_vae_trial = VAE(latent_features=trial_config['latent_features'])
     model_vae_trial = CIFAR_VAE(latent_features=trial_config['latent_features'], in_channels=trial_config['in_channels'])
 
     # Huấn luyện
-    _, history = run_training(
+    _, history = run_training_optim(
         model=model_vae_trial,
         train_loader=train_loader,
         val_loader=val_loader,
@@ -37,7 +37,9 @@ def objective(trial, config):
     )
 
     # Lấy giá trị validation loss của epoch cuối cùng làm thước đo
-    final_val_loss = history['val_loss'][-1]
+    # final_val_loss = history['val_loss'][-1]
+    # Lấy best val loss trong quá trình train
+    final_val_loss = min(history['val_loss'])
 
     # Nếu mô hình bị phân kỳ (loss = NaN), trả về vô cùng lớn để Optuna loại bỏ
     if torch.isnan(torch.tensor(final_val_loss)):
@@ -51,7 +53,7 @@ with open("config.yaml", "r", encoding="utf-8") as f:
 
 # Chia dữ liệu
 # full_train_dataset = MNISTDataset(train=True, download=False)
-full_train_dataset = CIFARDataset(train=True, download=True)
+full_train_dataset = CIFARDataset(train=True, download=False)
 train_loader, val_loader = data_split(full_train_dataset=full_train_dataset, config=config)
 
 print("\n")
@@ -74,7 +76,7 @@ bo_sampler = TPESampler(
 study = optuna.create_study(direction="minimize", sampler=bo_sampler)
 
 # Chạy tối ưu hóa trong n_trials vòng (ví dụ: 20 vòng thử nghiệm). 
-study.optimize(lambda trial: objective(trial, config), n_trials=18)
+study.optimize(lambda trial: objective(trial, config), n_trials=20)
 
 print("\nQuá trình tìm kiếm đã hoàn tất!")
 

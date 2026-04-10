@@ -203,8 +203,8 @@ def run_training(model, train_loader, val_loader, config, device, dataset, name_
     return model, history
 
 def run_training_optim(model, train_loader, val_loader, config, device, loss_fn = vae_loss_fn_ver1):
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-    model_path = f"best_model_{timestamp}.pth"
+    # timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    # model_path = f"best_model_{timestamp}.pth"
     
     model.train()
     model.to(device)
@@ -294,8 +294,8 @@ def run_training_optim(model, train_loader, val_loader, config, device, loss_fn 
             best_val_loss = average_val_loss
             early_stop_counter = 0
             # best_model_weights = copy.deepcopy(model.state_dict())
-            torch.save(model.state_dict(), model_path)
-            print(f"--> Validation loss cải thiện. Đã lưu lại trọng số model tốt nhất!\n")
+            # torch.save(model.state_dict(), model_path)
+            print(f"--> Validation loss cải thiện!\n")
         else:
             early_stop_counter += 1
             if early_stop_counter >= patience:
@@ -305,7 +305,7 @@ def run_training_optim(model, train_loader, val_loader, config, device, loss_fn 
     print("Huấn luyện xong")
     # Khôi phục lại trọng số tốt nhất trước khi trả model về
     # model.load_state_dict(best_model_weights)
-    model.load_state_dict(torch.load(model_path))
+    # model.load_state_dict(torch.load(model_path))
     
     print("Đã tải lại trọng số của epoch có Validation Loss thấp nhất.")
     return model, history
