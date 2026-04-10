@@ -15,7 +15,7 @@ def vae_loss_fn_ver1(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssi
     # Chạy model
     output, mu, log_var = model(batch)
     # Kẹp log_var tránh tràn số
-    log_var = torch.clamp(log_var, min=-20.0, max=20.0)
+    log_var = torch.clamp(log_var, min=-10, max=10.0)
     # Reconstruction loss: Mean Absolute Loss
     reconstruction_loss = F.l1_loss(output, batch, reduction='mean')
     # KL Loss
@@ -36,7 +36,7 @@ def vae_loss_fn_ver2(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssi
     # Chạy model
     output, mu, log_var = model(batch)
     # Kẹp log_var tránh tràn số
-    log_var = torch.clamp(log_var, min=-20.0, max=20.0)
+    log_var = torch.clamp(log_var, min=-10.0, max=10.0)
     # Reconstruction loss: Mean Absolute Loss
     reconstruction_loss = F.l1_loss(output, batch, reduction='mean')
     # KL Loss
@@ -57,7 +57,7 @@ def vae_loss_fn_ver3(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssi
     # Chạy model
     output, mu, log_var = model(batch)
     # Kẹp log_var tránh tràn số
-    log_var = torch.clamp(log_var, min=-20.0, max=20.0)
+    log_var = torch.clamp(log_var, min=-10.0, max=10.0)
     # Reconstruction loss: Mean Squared Loss
     reconstruction_loss = F.mse_loss(output, batch, reduction='mean')
     # KL Loss
@@ -131,7 +131,7 @@ def run_training(model, train_loader, val_loader, config, device, dataset, name_
 
             current_loss = loss.item()
             epoch_losses.append(current_loss)
-            history['train_loss'].append(current_loss)
+            # history['train_loss'].append(current_loss)
 
             # Cập nhật thanh tiến trình
             progess_bar.set_postfix(loss=f"{current_loss:.4f}")
@@ -140,7 +140,7 @@ def run_training(model, train_loader, val_loader, config, device, dataset, name_
         avg_epoch_loss = sum(epoch_losses) / len(epoch_losses)
         print(f"Epoch {epoch_idx+1} | Train Loss trung bình: {avg_epoch_loss:.4f}\n")
         # Lưu vào history
-        # history['train_loss'].append(avg_epoch_loss)
+        history['train_loss'].append(avg_epoch_loss)
 
         # Validate model
         model.eval()
@@ -156,13 +156,13 @@ def run_training(model, train_loader, val_loader, config, device, dataset, name_
                     lambda_kl=config['lambda_kl'],
                     lambda_ssim=config['lambda_ssim']
                 ) 
-                history['val_loss'].append(val_loss.item())
+                # history['val_loss'].append(val_loss.item())
                 total_val_loss += val_loss.item()
 
         average_val_loss = total_val_loss / len(val_loader)
-        # print(f"Epoch {epoch_idx+1} | Val Loss trung bình: {average_val_loss:.4f}\n")
+        print(f"Epoch {epoch_idx+1} | Val Loss trung bình: {average_val_loss:.4f}\n")
         # Lưu vào history
-        # history['val_loss'].append(average_val_loss)
+        history['val_loss'].append(average_val_loss)
 
         print(f"Epoch {epoch_idx+1} | Train Loss: {avg_epoch_loss:.4f} | Val Loss: {average_val_loss:.4f}\n")
 
