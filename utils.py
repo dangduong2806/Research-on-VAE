@@ -14,6 +14,8 @@ from datetime import datetime
 def vae_loss_fn_ver1(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssim=0.84):
     # Chạy model
     output, mu, log_var = model(batch)
+    # Kẹp log_var tránh tràn số
+    log_var = torch.clamp(log_var, min=-20.0, max=20.0)
     # Reconstruction loss: Mean Absolute Loss
     reconstruction_loss = F.l1_loss(output, batch, reduction='mean')
     # KL Loss
@@ -33,6 +35,8 @@ def vae_loss_fn_ver1(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssi
 def vae_loss_fn_ver2(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssim=0.84):
     # Chạy model
     output, mu, log_var = model(batch)
+    # Kẹp log_var tránh tràn số
+    log_var = torch.clamp(log_var, min=-20.0, max=20.0)
     # Reconstruction loss: Mean Absolute Loss
     reconstruction_loss = F.l1_loss(output, batch, reduction='mean')
     # KL Loss
@@ -52,6 +56,8 @@ def vae_loss_fn_ver2(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssi
 def vae_loss_fn_ver3(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssim=0.84):
     # Chạy model
     output, mu, log_var = model(batch)
+    # Kẹp log_var tránh tràn số
+    log_var = torch.clamp(log_var, min=-20.0, max=20.0)
     # Reconstruction loss: Mean Squared Loss
     reconstruction_loss = F.mse_loss(output, batch, reduction='mean')
     # KL Loss
@@ -117,6 +123,8 @@ def run_training(model, train_loader, val_loader, config, device, dataset, name_
             )
             # Backpropagation
             loss.backward()
+
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 
             # Cập nhật trọng số
             optimizer.step()
