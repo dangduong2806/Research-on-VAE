@@ -53,15 +53,17 @@ name_loss_3 = "loss_fn_3"
 model_3, history_3 = run_training(model=model_vae_3, train_loader=train_loader, val_loader=val_loader, config=config, device=device,dataset=data_set, name_loss=name_loss_3, loss_fn=vae_loss_fn_ver3)
 print("\n")
 
-epochs_range = range(1, len(history_1['train_loss']) + 1)
+epochs_range_1 = range(1, len(history_1['train_loss']) + 1)
+epochs_range_2 = range(1, len(history_2['train_loss']) + 1)
+epochs_range_3 = range(1, len(history_3['train_loss']) + 1)
 
 plt.figure(figsize=(12, 6))
 
 # Vẽ đồ thị Train Loss
 plt.subplot(1, 2, 1)
-plt.plot(epochs_range, history_1['train_loss'], label='Train Loss MAE', color='blue', linestyle='-')
-plt.plot(epochs_range, history_2['train_loss'], label='Train Loss MAE and SSIM', color='red', linestyle='-')
-plt.plot(epochs_range, history_3['train_loss'], label='Train Loss MSE and SSIM', color = 'green', linestyle='-')
+plt.plot(epochs_range_1, history_1['train_loss'], label='Train Loss MAE', color='blue', linestyle='-')
+plt.plot(epochs_range_2, history_2['train_loss'], label='Train Loss MAE and SSIM', color='red', linestyle='-')
+plt.plot(epochs_range_3, history_3['train_loss'], label='Train Loss MSE and SSIM', color = 'green', linestyle='-')
 plt.title('So sánh Train Loss trên tập CIFAR-10')
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
@@ -70,9 +72,13 @@ plt.grid(True)
 
 # Vẽ đồ thị Validation Loss
 plt.subplot(1, 2, 2)
-plt.plot(epochs_range, history_1['val_loss'], label='Val Loss MAE', color='blue', linestyle='-')
-plt.plot(epochs_range, history_2['val_loss'], label='Val Loss MAE and SSIM', color='red', linestyle='-')
-plt.plot(epochs_range, history_3['val_loss'], label='Val Loss MSE and SSIM', color = 'green', linestyle='-')
+val_range_1 = range(1, len(history_1['val_loss']) + 1)
+val_range_2 = range(1, len(history_2['val_loss']) + 1)
+val_range_3 = range(1, len(history_3['val_loss']) + 1)
+
+plt.plot(val_range_1, history_1['val_loss'], label='Val Loss MAE', color='blue', linestyle='-')
+plt.plot(val_range_2, history_2['val_loss'], label='Val Loss MAE and SSIM', color='red', linestyle='-')
+plt.plot(val_range_3, history_3['val_loss'], label='Val Loss MSE and SSIM', color = 'green', linestyle='-')
 plt.title('So sánh Validation Loss trên tập CIFAR-10')
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
