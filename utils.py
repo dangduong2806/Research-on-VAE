@@ -25,9 +25,13 @@ def vae_loss_fn_ver1(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssi
 
     # SSIM Loss
     ssim_loss = 0.0
+    
+    # ===== 2. SCALE (QUAN TRỌNG) =====
+    rec_loss_scaled = reconstruction_loss / (reconstruction_loss.detach() + 1e-8)
+    kl_loss_scaled = kl_loss / (kl_loss.detach() + 1e-8)
 
     # Tổng hợp Loss
-    total_loss = lambda_rec * reconstruction_loss + lambda_kl * kl_loss + lambda_ssim * ssim_loss
+    total_loss = lambda_rec * rec_loss_scaled + lambda_kl * kl_loss_scaled + lambda_ssim * ssim_loss
     
     return total_loss
 
@@ -47,8 +51,14 @@ def vae_loss_fn_ver2(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssi
     # SSIM Loss
     ssim_val = ssim(output, batch, data_range=1.0)
     ssim_loss = 1.0 - ssim_val.mean()
+
+    # ===== 2. SCALE (QUAN TRỌNG) =====
+    rec_loss_scaled = reconstruction_loss / (reconstruction_loss.detach() + 1e-8)
+    kl_loss_scaled = kl_loss / (kl_loss.detach() + 1e-8)
+    ssim_loss_scaled = ssim_loss / (ssim_loss.detach() + 1e-8)
+
     # Tổng hợp Loss
-    total_loss = lambda_rec * reconstruction_loss + lambda_kl * kl_loss + lambda_ssim * ssim_loss
+    total_loss = lambda_rec * rec_loss_scaled + lambda_kl * kl_loss_scaled + lambda_ssim * ssim_loss_scaled
     
     return total_loss
 
@@ -68,8 +78,14 @@ def vae_loss_fn_ver3(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssi
     # SSIM Loss
     ssim_val = ssim(output, batch, data_range=1.0)
     ssim_loss = 1.0 - ssim_val.mean()
+
+    # ===== 2. SCALE (QUAN TRỌNG) =====
+    rec_loss_scaled = reconstruction_loss / (reconstruction_loss.detach() + 1e-8)
+    kl_loss_scaled = kl_loss / (kl_loss.detach() + 1e-8)
+    ssim_loss_scaled = ssim_loss / (ssim_loss.detach() + 1e-8)
+
     # Tổng hợp Loss
-    total_loss = lambda_rec * reconstruction_loss + lambda_kl * kl_loss + lambda_ssim * ssim_loss
+    total_loss = lambda_rec * rec_loss_scaled + lambda_kl * kl_loss_scaled + lambda_ssim * ssim_loss_scaled
     
     return total_loss
 
