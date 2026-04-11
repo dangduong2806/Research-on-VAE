@@ -24,7 +24,7 @@ class MNISTDataset(Dataset):
 class CIFARDataset(Dataset):
     def __init__(self, root="./data", train=True, download=False):
         self.transform = transforms.Compose([
-            transforms.Resize(32), # CIFAR-10 vốn đã 32x32, nhưng giữ lại để đồng bộ
+            # transforms.Resize(32), # CIFAR-10 vốn đã 32x32, nhưng giữ lại để đồng bộ
             transforms.ToTensor()
         ])
         # Gọi dataset CIFAR10 thay vì MNIST
