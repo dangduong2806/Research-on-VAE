@@ -48,18 +48,34 @@ MNIST:
     lambda_ssim: 0.869151799579502
 
 
+# CIFAR10:
+#   loss_fn_1:
+#     lambda_rec: 0.11980753746199224
+#     lambda_kl: 0.013051163408541698
+#     lambda_ssim: 1.1947334276180015
+
+#   loss_fn_2:
+#     lambda_rec: 1.1241800333988146
+#     lambda_kl: 0.00021920038547831362
+#     lambda_ssim: 0.15349362024478594
+
+#   loss_fn_3:
+#     lambda_rec: 2.1333715266419033
+#     lambda_kl: 0.00012611236054600722
+#     lambda_ssim: 0.1090941533510366
+
 CIFAR10:
   loss_fn_1:
-    lambda_rec: 0.11980753746199224
-    lambda_kl: 0.013051163408541698
-    lambda_ssim: 1.1947334276180015
+    lambda_rec: 0.3305351885451935
+    lambda_kl: 0.0019062374828215129
+    lambda_ssim: 0.9464980324280785
 
   loss_fn_2:
-    lambda_rec: 1.1241800333988146
-    lambda_kl: 0.00021920038547831362
-    lambda_ssim: 0.15349362024478594
+    lambda_rec: 0.9003813988889606
+    lambda_kl: 0.00016874369021868292
+    lambda_ssim: 0.3313583291090125
 
   loss_fn_3:
-    lambda_rec: 2.1333715266419033
-    lambda_kl: 0.00012611236054600722
-    lambda_ssim: 0.1090941533510366
+    lambda_rec: 1.491976412169392
+    lambda_kl: 0.00011672711987380462
+    lambda_ssim: 0.3053310554126766
