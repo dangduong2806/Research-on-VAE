@@ -47,7 +47,7 @@ def vae_loss_fn_ver1(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssi
 # Hàm loss
 def vae_loss_fn_ver2(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssim=0.84, sample=True):
     # Chạy model
-    output, mu, log_var = model(batch)
+    output, mu, log_var = model(batch, sample)
     
     # Reconstruction loss: Mean Absolute Loss
     reconstruction_loss = F.l1_loss(output, batch, reduction='mean')
@@ -75,7 +75,7 @@ def vae_loss_fn_ver2(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssi
 # Hàm loss
 def vae_loss_fn_ver3(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssim=0.84, sample=True):
     # Chạy model
-    output, mu, log_var = model(batch)
+    output, mu, log_var = model(batch, sample)
     
     # Reconstruction loss: Mean Squared Loss
     reconstruction_loss = F.mse_loss(output, batch, reduction='mean')
@@ -223,10 +223,10 @@ def run_training(model, train_loader, val_loader, config, device, dataset, name_
                     lambda_ssim=loss_config['lambda_ssim'],
                     sample=False
                 ) 
-                val_loss_sum += metrics["loss"].item() * batch_size
-                val_recon_sum += metrics["reconstruction_loss"].item() * batch_size
-                val_kl_sum += metrics["kl_loss"].item() * batch_size
-                val_ssim_sum += metrics["ssim_loss"].item() * batch_size
+                val_loss_sum += val_metrics["loss"].item() * batch_size
+                val_recon_sum += val_metrics["reconstruction_loss"].item() * batch_size
+                val_kl_sum += val_metrics["kl_loss"].item() * batch_size
+                val_ssim_sum += val_metrics["ssim_loss"].item() * batch_size
                 num_val_samples += batch_size
 
         avg_val_loss = val_loss_sum / num_val_samples
