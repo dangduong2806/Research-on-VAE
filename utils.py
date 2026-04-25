@@ -161,7 +161,7 @@ def run_training(model, train_loader, val_loader, config, device, dataset, name_
                 lambda_ssim=loss_config['lambda_ssim'],
                 sample=True
             )
-            loss = metrics[['loss']]
+            loss = metrics['loss']
             # Backpropagation
             loss.backward()
 
