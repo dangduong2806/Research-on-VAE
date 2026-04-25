@@ -126,12 +126,20 @@ class VAE(nn.Module):
         # Khởi tạo encoder và decoder
         self.encoder = Encoder(latent_features=latent_features)
         self.decoder = Decoder(latent_features=latent_features)
+    def encode(self, x):
+        return self.encoder(x)
+
+    def decode(self, z):
+        return self.decoder(z)
     
-    def forward(self, x):
+    def forward(self, x, sample=True):
         # Encoder
-        mu, log_var = self.encoder(x)
-        # Reparameterization trick
-        z = reparameterization_trick(mu=mu, log_var=log_var)
+        mu, log_var = self.encode(x=x)
+        if sample:
+            z = reparameterization_trick(mu=mu, log_var=log_var)
+        else:
+            z = mu
+            
         # Decoder
         output = self.decoder(z)
         return output, mu, log_var

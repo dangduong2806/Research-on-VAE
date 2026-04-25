@@ -10,70 +10,95 @@ import copy
 import time
 from datetime import datetime
 
+def compute_kl_loss(mu, log_var):
+    log_var = torch.clamp(log_var, min=-10.0, max=10.0)
+
+    kl_map = 0.5 * (mu.pow(2) + log_var.exp() - log_var - 1)
+
+    kl_loss = kl_map.mean()
+    return kl_loss
+
 # Hàm loss
-def vae_loss_fn_ver1(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssim=0.84):
+def vae_loss_fn_ver1(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssim=0.84, sample=True):
     # Chạy model
-    output, mu, log_var = model(batch)
-    # Kẹp log_var tránh tràn số
-    log_var = torch.clamp(log_var, min=-10, max=10.0)
+    output, mu, log_var = model(batch, sample)
+
     # Reconstruction loss: Mean Absolute Loss
     reconstruction_loss = F.l1_loss(output, batch, reduction='mean')
     # KL Loss
-    kl_loss = 0.5 * torch.sum(mu.pow(2) + log_var.exp() - log_var - 1, dim=(1, 2, 3))
-    kl_loss = torch.mean(kl_loss) # Lấy trung bình trên toàn batch
-    kl_loss = kl_loss / (4 * 4 * 4)
+    kl_loss = compute_kl_loss(mu=mu, log_var=log_var)
 
     # SSIM Loss
-    ssim_loss = 0.0
+    ssim_loss = torch.zeros((), device=batch.device)
 
     # Tổng hợp Loss
-    total_loss = lambda_rec * reconstruction_loss + lambda_kl * kl_loss + lambda_ssim * ssim_loss
+    total_loss = (
+        lambda_rec * reconstruction_loss
+        + lambda_kl * kl_loss
+    )
     
-    return total_loss
+    return {
+        "loss": total_loss,
+        "reconstruction_loss": reconstruction_loss.detach(),
+        "kl_loss": kl_loss.detach(),
+        "ssim_loss": ssim_loss.detach()
+    }
 
 # Hàm loss
-def vae_loss_fn_ver2(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssim=0.84):
+def vae_loss_fn_ver2(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssim=0.84, sample=True):
     # Chạy model
     output, mu, log_var = model(batch)
-    # Kẹp log_var tránh tràn số
-    log_var = torch.clamp(log_var, min=-10.0, max=10.0)
+    
     # Reconstruction loss: Mean Absolute Loss
     reconstruction_loss = F.l1_loss(output, batch, reduction='mean')
     # KL Loss
-    kl_loss = 0.5 * torch.sum(mu.pow(2) + log_var.exp() - log_var - 1, dim=(1, 2, 3))
-    kl_loss = torch.mean(kl_loss) # Lấy trung bình trên toàn batch
-    kl_loss = kl_loss / (4 * 4 * 4)
+    kl_loss = compute_kl_loss(mu, log_var)
 
     # SSIM Loss
     ssim_val = ssim(output, batch, data_range=1.0)
     ssim_loss = 1.0 - ssim_val.mean()
 
     # Tổng hợp Loss
-    total_loss = lambda_rec * reconstruction_loss + lambda_kl * kl_loss + lambda_ssim * ssim_loss
+    total_loss = (
+        lambda_rec * reconstruction_loss
+        + lambda_kl * kl_loss
+        + lambda_ssim * ssim_loss
+    )
     
-    return total_loss
+    return {
+        "loss": total_loss,
+        "reconstruction_loss": reconstruction_loss.detach(),
+        "kl_loss": kl_loss.detach(),
+        "ssim_loss": ssim_loss.detach()
+    }
 
 # Hàm loss
-def vae_loss_fn_ver3(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssim=0.84):
+def vae_loss_fn_ver3(model, batch, lambda_rec = 1.0, lambda_kl = 1.0, lambda_ssim=0.84, sample=True):
     # Chạy model
     output, mu, log_var = model(batch)
-    # Kẹp log_var tránh tràn số
-    log_var = torch.clamp(log_var, min=-10.0, max=10.0)
+    
     # Reconstruction loss: Mean Squared Loss
     reconstruction_loss = F.mse_loss(output, batch, reduction='mean')
     # KL Loss
-    kl_loss = 0.5 * torch.sum(mu.pow(2) + log_var.exp() - log_var - 1, dim=(1, 2, 3))
-    kl_loss = torch.mean(kl_loss) # Lấy trung bình trên toàn batch
-    kl_loss = kl_loss / (4 * 4 * 4)
+    kl_loss = compute_kl_loss(mu, log_var)
 
     # SSIM Loss
     ssim_val = ssim(output, batch, data_range=1.0)
     ssim_loss = 1.0 - ssim_val.mean()
 
     # Tổng hợp Loss
-    total_loss = lambda_rec * reconstruction_loss + lambda_kl * kl_loss + lambda_ssim * ssim_loss
+    total_loss = (
+        lambda_rec * reconstruction_loss
+        + lambda_kl * kl_loss
+        + lambda_ssim * ssim_loss
+    )
     
-    return total_loss
+    return {
+        "loss": total_loss,
+        "reconstruction_loss": reconstruction_loss.detach(),
+        "kl_loss": kl_loss.detach(),
+        "ssim_loss": ssim_loss.detach()
+    }
 
 
 # Vòng lặp huấn luyện
@@ -90,7 +115,13 @@ def run_training(model, train_loader, val_loader, config, device, dataset, name_
     # Dictinary để lưu trung bình loss
     history = {
         "train_loss": [],
-        "val_loss": []
+        "val_loss": [],
+        "train_reconstruction_loss": [],
+        "train_kl_loss": [],
+        "train_ssim_loss": [],
+        "val_reconstruction_loss": [],
+        "val_kl_loss": [],
+        "val_ssim_loss": []
     }
 
     patience = config.get('patience')
@@ -105,7 +136,11 @@ def run_training(model, train_loader, val_loader, config, device, dataset, name_
         
         model.train()
 
-        epoch_losses = []
+        train_loss_sum = 0.0
+        train_recon_sum = 0.0
+        train_kl_sum = 0.0
+        train_ssim_sum = 0.0
+        num_train_samples = 0
 
         # tqdm để tạo thanh tiến trình 
         progess_bar = tqdm(enumerate(train_loader), total=len(train_loader), desc=f"Epoch {epoch_idx+1}/{config['num_epochs']}")
@@ -113,16 +148,20 @@ def run_training(model, train_loader, val_loader, config, device, dataset, name_
         # Vòng lặp batch
         for i, batch in progess_bar:
             x = batch['image'].to(device)
+            batch_size = x.size(0)
+
             # Xóa sạch đạo hàm
             optimizer.zero_grad()
             # Tính loss
-            loss = loss_fn(
+            metrics = loss_fn(
                 model=model,
                 batch=x,
                 lambda_rec=loss_config['lambda_rec'],
                 lambda_kl=loss_config['lambda_kl'],
-                lambda_ssim=loss_config['lambda_ssim']
+                lambda_ssim=loss_config['lambda_ssim'],
+                sample=True
             )
+            loss = metrics[['loss']]
             # Backpropagation
             loss.backward()
 
@@ -131,45 +170,89 @@ def run_training(model, train_loader, val_loader, config, device, dataset, name_
             # Cập nhật trọng số
             optimizer.step()
 
-            current_loss = loss.item()
-            epoch_losses.append(current_loss)
-            # history['train_loss'].append(current_loss)
+            train_loss_sum += metrics["loss"].item() * batch_size
+            train_recon_sum += metrics["reconstruction_loss"].item() * batch_size
+            train_kl_sum += metrics["kl_loss"].item() * batch_size
+            train_ssim_sum += metrics["ssim_loss"].item() * batch_size
+            num_train_samples += batch_size
 
             # Cập nhật thanh tiến trình
-            progess_bar.set_postfix(loss=f"{current_loss:.4f}")
+            progess_bar.set_postfix(loss=f"{train_loss_sum:.4f}")
         
         # Tính trung bình loss sau mỗi epoch
-        avg_epoch_loss = sum(epoch_losses) / len(epoch_losses)
-        print(f"Epoch {epoch_idx+1} | Train Loss trung bình: {avg_epoch_loss:.4f}\n")
+
+        avg_train_loss = train_loss_sum / num_train_samples
+        avg_train_recon = train_recon_sum / num_train_samples
+        avg_train_kl = train_kl_sum / num_train_samples
+        avg_train_ssim = train_ssim_sum / num_train_samples
+
+        # print(f"Epoch {epoch_idx+1} | Train Loss trung bình: {avg_epoch_loss:.4f}\n")
+        print(
+            f"Epoch {epoch_idx+1} | "
+            f"Train Total: {avg_train_loss:.4f} | "
+            f"Train Recon: {avg_train_recon:.4f} | "
+            f"Train KL: {avg_train_kl:.4f} | "
+            f"Train SSIM: {avg_train_ssim:.4f} | "
+        )
+
         # Lưu vào history
-        history['train_loss'].append(avg_epoch_loss)
+        history["train_loss"].append(avg_train_loss)
+        history["train_reconstruction_loss"].append(avg_train_recon)
+        history["train_kl_loss"].append(avg_train_kl)
+        history["train_ssim_loss"].append(avg_train_ssim)
 
         # Validate model
         model.eval()
-        total_val_loss = 0.0
+        val_loss_sum = 0.0
+        val_recon_sum = 0.0
+        val_kl_sum = 0.0
+        val_ssim_sum = 0.0
+        num_val_samples = 0
+
         with torch.no_grad():
             for batch in val_loader:
                 images = batch['image'].to(device=device)
+                batch_size = images.size(0)
+
                 # Tính loss
-                val_loss = loss_fn(
+                val_metrics = loss_fn(
                     model=model,
                     batch=images,
                     lambda_rec=loss_config['lambda_rec'],
                     lambda_kl=loss_config['lambda_kl'],
-                    lambda_ssim=loss_config['lambda_ssim']
+                    lambda_ssim=loss_config['lambda_ssim'],
+                    sample=False
                 ) 
-                # history['val_loss'].append(val_loss.item())
-                total_val_loss += val_loss.item()
+                val_loss_sum += metrics["loss"].item() * batch_size
+                val_recon_sum += metrics["reconstruction_loss"].item() * batch_size
+                val_kl_sum += metrics["kl_loss"].item() * batch_size
+                val_ssim_sum += metrics["ssim_loss"].item() * batch_size
+                num_val_samples += batch_size
 
-        average_val_loss = total_val_loss / len(val_loader)
-        print(f"Epoch {epoch_idx+1} | Val Loss trung bình: {average_val_loss:.4f}\n")
+        avg_val_loss = val_loss_sum / num_val_samples
+        avg_val_recon = val_recon_sum / num_val_samples
+        avg_val_kl = val_kl_sum / num_val_samples
+        avg_val_ssim = val_ssim_sum / num_val_samples
+
+        print(f"Epoch {epoch_idx+1} | Val Loss trung bình: {avg_val_loss:.4f}\n")
+        
         # Lưu vào history
-        history['val_loss'].append(average_val_loss)
+        history["val_loss"].append(avg_val_loss)
+        history["val_reconstruction_loss"].append(avg_val_recon)
+        history["val_kl_loss"].append(avg_val_kl)
+        history["val_ssim_loss"].append(avg_val_ssim)
 
-        print(f"Epoch {epoch_idx+1} | Train Loss: {avg_epoch_loss:.4f} | Val Loss: {average_val_loss:.4f}\n")
+        # print(f"Epoch {epoch_idx+1} | Train Loss: {avg_epoch_loss:.4f} | Val Loss: {average_val_loss:.4f}\n")
+        print(
+            f"Epoch {epoch_idx+1} | "
+            f"Val Total: {avg_val_loss:.4f} | "
+            f"Val Recon: {avg_val_recon:.4f} | "
+            f"Val KL: {avg_val_kl:.4f} | "
+            f"Val SSIM: {avg_val_ssim:.4f}\n"
+        )
 
-        if average_val_loss < best_val_loss:
-            best_val_loss = average_val_loss
+        if avg_val_loss < best_val_loss:
+            best_val_loss = avg_val_loss
             early_stop_counter = 0
             # best_model_weights = copy.deepcopy(model.state_dict())
             torch.save(model.state_dict(), model_path)
