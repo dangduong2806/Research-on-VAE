@@ -34,31 +34,31 @@ latent_features = config['latent_features'] # 32
 data_set = "MNIST"
 # Huấn luyện với 3 hàm loss khác nhau
 # loss 1 
-model_vae_1 = VAE(latent_features=latent_features)
-name_loss_1 = "loss_fn_1"
-model_1, history_1 = run_training(model=model_vae_1, train_loader=train_loader, val_loader=val_loader, config=config, device=device, dataset=data_set, name_loss=name_loss_1, loss_fn=vae_loss_fn_ver1)
-print("\n")
+# model_vae_1 = VAE(latent_features=latent_features)
+# name_loss_1 = "loss_fn_1"
+# model_1, history_1 = run_training(model=model_vae_1, train_loader=train_loader, val_loader=val_loader, config=config, device=device, dataset=data_set, name_loss=name_loss_1, loss_fn=vae_loss_fn_ver1)
+# print("\n")
 # Loss 2
-model_vae_2 = VAE(latent_features=latent_features)
-name_loss_2 = "loss_fn_2"
-model_2, history_2 = run_training(model=model_vae_2, train_loader=train_loader, val_loader=val_loader, config=config, device=device, dataset=data_set, name_loss=name_loss_2, loss_fn=vae_loss_fn_ver2)
-print("\n")
+# model_vae_2 = VAE(latent_features=latent_features)
+# name_loss_2 = "loss_fn_2"
+# model_2, history_2 = run_training(model=model_vae_2, train_loader=train_loader, val_loader=val_loader, config=config, device=device, dataset=data_set, name_loss=name_loss_2, loss_fn=vae_loss_fn_ver2)
+# print("\n")
 # Loss 3
 model_vae_3 = VAE(latent_features=latent_features)
 name_loss_3 = "loss_fn_3"
 model_3, history_3 = run_training(model=model_vae_3, train_loader=train_loader, val_loader=val_loader, config=config, device=device, dataset=data_set, name_loss=name_loss_3, loss_fn=vae_loss_fn_ver3)
 print("\n")
 
-epochs_range_1 = range(1, len(history_1['train_loss']) + 1)
-epochs_range_2 = range(1, len(history_2['train_loss']) + 1)
+# epochs_range_1 = range(1, len(history_1['train_loss']) + 1)
+# epochs_range_2 = range(1, len(history_2['train_loss']) + 1)
 epochs_range_3 = range(1, len(history_3['train_loss']) + 1)
 
 plt.figure(figsize=(12, 6))
 
 # Vẽ đồ thị Train Loss
 plt.subplot(1, 2, 1)
-plt.plot(epochs_range_1, history_1['train_loss'], label='Train Loss MAE', color='blue', linestyle='-')
-plt.plot(epochs_range_2, history_2['train_loss'], label='Train Loss MAE and SSIM', color='red', linestyle='-')
+# plt.plot(epochs_range_1, history_1['train_loss'], label='Train Loss MAE', color='blue', linestyle='-')
+# plt.plot(epochs_range_2, history_2['train_loss'], label='Train Loss MAE and SSIM', color='red', linestyle='-')
 plt.plot(epochs_range_3, history_3['train_loss'], label='Train Loss MSE and SSIM', color = 'green', linestyle='-')
 plt.title('So sánh Train Loss')
 plt.xlabel('Epoch')
@@ -68,12 +68,12 @@ plt.grid(True)
 
 # Vẽ đồ thị Validation Loss
 plt.subplot(1, 2, 2)
-val_range_1 = range(1, len(history_1['val_loss']) + 1)
-val_range_2 = range(1, len(history_2['val_loss']) + 1)
+# val_range_1 = range(1, len(history_1['val_loss']) + 1)
+# val_range_2 = range(1, len(history_2['val_loss']) + 1)
 val_range_3 = range(1, len(history_3['val_loss']) + 1)
 
-plt.plot(val_range_1, history_1['val_loss'], label='Val Loss MAE', color='blue', linestyle='-')
-plt.plot(val_range_2, history_2['val_loss'], label='Val Loss MAE and SSIM', color='red', linestyle='-')
+# plt.plot(val_range_1, history_1['val_loss'], label='Val Loss MAE', color='blue', linestyle='-')
+# plt.plot(val_range_2, history_2['val_loss'], label='Val Loss MAE and SSIM', color='red', linestyle='-')
 plt.plot(val_range_3, history_3['val_loss'], label='Val Loss MSE and SSIM', color = 'green', linestyle='-')
 plt.title('So sánh Validation Loss')
 plt.xlabel('Epoch')
