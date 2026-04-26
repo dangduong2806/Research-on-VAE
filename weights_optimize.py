@@ -42,8 +42,8 @@ LOSS_REGISTRY = {
 def objective(trial, base_config, loss_name, loss_info, train_loader, val_loader, device):
     trial_config = copy.deepcopy(base_config)
 
-    trial_config["num_epochs"] = 5
-    trial_config["patience"] = min(base_config.get("patience", 5), 3)
+    trial_config["num_epochs"] = 3
+    trial_config["patience"] = min(base_config.get("patience", 2), 2)
 
     for key, value in loss_info["fixed_params"].items():
         trial_config[key] = value
@@ -111,7 +111,7 @@ for loss_name, loss_info in LOSS_REGISTRY.items():
             val_loader=val_loader,
             device=device
         ),
-        n_trials=20
+        n_trials=10
     )
 
     results[loss_name] = {
