@@ -86,7 +86,7 @@ plt.tight_layout()
 
 # Lưu ảnh:
 plt.savefig('loss_comparison.png', dpi=300, bbox_inches='tight')
-print("\nĐã lưu biểu đồ thành công vào file 'loss_comparison.png'")
+print("\nĐã lưu biểu đồ thành công vào file 'val_loss_comparison.png'")
 
 ### TSNE
 # base_vae = VAE(latent_features=latent_features)

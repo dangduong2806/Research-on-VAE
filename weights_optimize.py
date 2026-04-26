@@ -8,46 +8,69 @@ from utils import vae_loss_fn_ver3, vae_loss_fn_ver1, vae_loss_fn_ver2, run_trai
 from optuna.samplers import TPESampler
 
 
+LOSS_REGISTRY = {
+    "loss_fn_1": {
+        "fn": vae_loss_fn_ver1,
+        "search_space": {
+            "lambda_rec": (0.3, 2.0, False),
+            "lambda_kl": (1e-4, 1e-2, True),
+        },
+        "fixed_params": {
+            "lambda_ssim": 0.0
+        }
+    },
+    "loss_fn_2": {
+        "fn": vae_loss_fn_ver2,
+        "search_space": {
+            "lambda_rec": (0.3, 2.0, False),
+            "lambda_kl": (1e-4, 1e-2, True),
+            "lambda_ssim": (0.3, 2.0, False),
+        },
+        "fixed_params": {}
+    },
+    "loss_fn_3": {
+        "fn": vae_loss_fn_ver3,
+        "search_space": {
+            "lambda_rec": (0.3, 2.0, False),
+            "lambda_kl": (1e-4, 1e-2, True),
+            "lambda_ssim": (0.3, 2.0, False),
+        },
+        "fixed_params": {}
+    }
+}
 
-def objective(trial, config):
-    # Giảm ko gian tìm kiếm
-    suggested_lambda_rec = trial.suggest_float('lambda_rec', 0.3, 2.0)
-    # KL loss thường nhỏ => Tìm trong không gian logarit
-    suggested_lambda_kl = trial.suggest_float('lambda_kl', 1e-4, 1e-2, log=True)
+def objective(trial, base_config, loss_name, loss_info, train_loader, val_loader, device):
+    trial_config = copy.deepcopy(base_config)
 
-    suggested_lambda_ssim = trial.suggest_float('lambda_ssim', 0.3, 2.0)
+    trial_config["num_epochs"] = 5
+    trial_config["patience"] = min(base_config.get("patience", 5), 3)
 
-    # Tạo bản sao của config và cập nhật các trọng số mới
-    trial_config = copy.deepcopy(config)
-    trial_config['lambda_rec'] = suggested_lambda_rec
-    trial_config['lambda_kl'] = suggested_lambda_kl
-    trial_config['lambda_ssim'] = suggested_lambda_ssim
+    for key, value in loss_info["fixed_params"].items():
+        trial_config[key] = value
 
-    trial_config['num_epochs'] = 5 # 3-5. Sau khi tìm được bộ lambda tốt => train full
+    for param_name, (low, high, use_log) in loss_info["search_space"].items():
+        trial_config[param_name] = trial.suggest_float(param_name, low, high, log=use_log)
 
-    model_vae_trial = VAE(latent_features=trial_config['latent_features'])
+    model_vae_trial = VAE(latent_features=trial_config["latent_features"])
 
-    # Huấn luyện
     _, history = run_training_optim(
         model=model_vae_trial,
         train_loader=train_loader,
         val_loader=val_loader,
         config=trial_config,
         device=device,
-        loss_fn=vae_loss_fn_ver1
+        loss_fn=loss_info["fn"]
     )
 
-    # Lấy giá trị validation loss của epoch cuối cùng làm thước đo
-    # final_val_loss = history['val_loss'][-1]
+    if len(history["val_loss"]) == 0:
+        return float("inf")
 
-    # Lấy best val loss trong quá trình train
-    final_val_loss = min(history['val_loss'])
+    best_val_loss = min(history["val_loss"])
 
-    # Nếu mô hình bị phân kỳ (loss = NaN), trả về vô cùng lớn để Optuna loại bỏ
-    if torch.isnan(torch.tensor(final_val_loss)):
-        return float('inf')
-    
-    return final_val_loss
+    if not torch.isfinite(torch.tensor(best_val_loss)):
+        return float("inf")
+
+    return best_val_loss
 
 # Đọc dữ liệu config
 with open("config.yaml", "r", encoding="utf-8") as f:
@@ -69,33 +92,74 @@ print("Device: ", device)
 
 print("Bắt đầu quá trình Bayesian Optimization với Optuna...")
 
-# TPESampler sử dụng Expected Improvement (EI) làm acquisition function
-bo_sampler = TPESampler(
-    n_startup_trials = 5,
-    seed=42
-)
-study = optuna.create_study(direction="minimize", sampler=bo_sampler)
+dataset_name = "MNIST"
+results = {}
 
-# Chạy tối ưu hóa trong n_trials vòng (ví dụ: 20 vòng thử nghiệm). 
-study.optimize(lambda trial: objective(trial, config), n_trials=20)
+for loss_name, loss_info in LOSS_REGISTRY.items():
+    print(f"\nBat dau toi uu cho {loss_name} ...")
 
-print("\nQuá trình tìm kiếm đã hoàn tất!")
+    sampler = TPESampler(n_startup_trials=5, seed=42)
+    study = optuna.create_study(direction="minimize", sampler=sampler)
 
-# --- IN RA KẾT QUẢ TỐT NHẤT ---
-best_trial = study.best_trial
-print(f"Giá trị Validation Loss cho Loss Function 1 tốt nhất đạt được: {best_trial.value:.4f}")
-print("Bộ tham số hoàn hảo nhất là:")
-for key, value in best_trial.params.items():
-    print(f"    {key}: {value}")
+    study.optimize(
+        lambda trial: objective(
+            trial=trial,
+            base_config=config,
+            loss_name=loss_name,
+            loss_info=loss_info,
+            train_loader=train_loader,
+            val_loader=val_loader,
+            device=device
+        ),
+        n_trials=20
+    )
 
-# Xem quá trình giảm loss qua từng trial
-fig_optimization = optuna.visualization.plot_optimization_history(study)
-fig_optimization.show()
+    results[loss_name] = {
+        "best_value": study.best_value,
+        "best_params": study.best_params
+    }
 
-# Đánh giá xem giữa lambda_rec, lambda_kl, lambda_ssim, cái nào quan trọng nhất
-fig_importance = optuna.visualization.plot_param_importances(study)
-fig_importance.show()
+    config[dataset_name][loss_name].update(study.best_params)
 
-# Xem sự phân bố của các cấu hình đã thử (giúp biết vùng giá trị nào là tối ưu)
-fig_slice = optuna.visualization.plot_slice(study)
-fig_slice.show()
+    if "lambda_ssim" not in study.best_params:
+        config[dataset_name][loss_name]["lambda_ssim"] = 0.0
+
+    print(f"{loss_name} - best val loss: {study.best_value:.4f}")
+    for key, value in study.best_params.items():
+        print(f"    {key}: {value}")
+
+with open("config_optimized.yaml", "w", encoding="utf-8") as f:
+    yaml.safe_dump(config, f, sort_keys=False, allow_unicode=True)
+
+print("\nDa luu bo trong so toi uu vao config_optimized.yaml")
+
+# # TPESampler sử dụng Expected Improvement (EI) làm acquisition function
+# bo_sampler = TPESampler(
+#     n_startup_trials = 5,
+#     seed=42
+# )
+# study = optuna.create_study(direction="minimize", sampler=bo_sampler)
+
+# # Chạy tối ưu hóa trong n_trials vòng (ví dụ: 20 vòng thử nghiệm). 
+# study.optimize(lambda trial: objective(trial, config), n_trials=20)
+
+# print("\nQuá trình tìm kiếm đã hoàn tất!")
+
+# # --- IN RA KẾT QUẢ TỐT NHẤT ---
+# best_trial = study.best_trial
+# print(f"Giá trị Validation Loss cho Loss Function 1 tốt nhất đạt được: {best_trial.value:.4f}")
+# print("Bộ tham số hoàn hảo nhất là:")
+# for key, value in best_trial.params.items():
+#     print(f"    {key}: {value}")
+
+# # Xem quá trình giảm loss qua từng trial
+# fig_optimization = optuna.visualization.plot_optimization_history(study)
+# fig_optimization.show()
+
+# # Đánh giá xem giữa lambda_rec, lambda_kl, lambda_ssim, cái nào quan trọng nhất
+# fig_importance = optuna.visualization.plot_param_importances(study)
+# fig_importance.show()
+
+# # Xem sự phân bố của các cấu hình đã thử (giúp biết vùng giá trị nào là tối ưu)
+# fig_slice = optuna.visualization.plot_slice(study)
+# fig_slice.show()
