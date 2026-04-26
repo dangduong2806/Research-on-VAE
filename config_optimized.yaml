@@ -1,0 +1,37 @@
+batch_size: 128
+num_samples: 5000
+patience: 5
+latent_features: 32
+learning_rate: 0.001
+num_epochs: 100
+lambda_rec: 1.0
+lambda_kl: 0.001
+lambda_ssim: 0.84
+dataset: CIFAR10
+in_channels: 3
+MNIST:
+  loss_fn_1:
+    lambda_rec: 0.3257290223145362
+    lambda_kl: 0.0027881526601289423
+    lambda_ssim: 0.0
+  loss_fn_2:
+    lambda_rec: 0.9444208211585441
+    lambda_kl: 0.0003059703387791299
+    lambda_ssim: 0.9922826189668451
+  loss_fn_3:
+    lambda_rec: 1.022245522270179
+    lambda_kl: 0.0005997100604405288
+    lambda_ssim: 0.31283044283769834
+CIFAR10:
+  loss_fn_1:
+    lambda_rec: 0.3305351885451935
+    lambda_kl: 0.0019062374828215129
+    lambda_ssim: 0.9464980324280785
+  loss_fn_2:
+    lambda_rec: 0.9003813988889606
+    lambda_kl: 0.00016874369021868292
+    lambda_ssim: 0.3313583291090125
+  loss_fn_3:
+    lambda_rec: 1.491976412169392
+    lambda_kl: 0.00011672711987380462
+    lambda_ssim: 0.3053310554126766

@@ -15,21 +15,35 @@ lambda_ssim: 0.84
 dataset: "CIFAR10"
 in_channels: 3
 
+# MNIST:
+#   loss_fn_1:
+#     lambda_rec: 0.6868916212813586
+#     lambda_kl: 0.0006199345073308876
+#     lambda_ssim: 0.9088841223384716
+
+#   loss_fn_2:
+#     lambda_rec: 0.7093734937515477
+#     lambda_kl: 0.0001251688019527034
+#     lambda_ssim: 1.7112248804637598
+
+#   loss_fn_3:
+#     lambda_rec: 1.9316102681072143
+#     lambda_kl: 0.00010545991146805288
+#     lambda_ssim: 0.869151799579502
+
 MNIST:
   loss_fn_1:
-    lambda_rec: 0.6868916212813586
-    lambda_kl: 0.0006199345073308876
-    lambda_ssim: 0.9088841223384716
-
+    lambda_rec: 0.3257290223145362
+    lambda_kl: 0.0027881526601289423
+    lambda_ssim: 0.0
   loss_fn_2:
-    lambda_rec: 0.7093734937515477
-    lambda_kl: 0.0001251688019527034
-    lambda_ssim: 1.7112248804637598
-
+    lambda_rec: 0.9444208211585441
+    lambda_kl: 0.0003059703387791299
+    lambda_ssim: 0.9922826189668451
   loss_fn_3:
-    lambda_rec: 1.9316102681072143
-    lambda_kl: 0.00010545991146805288
-    lambda_ssim: 0.869151799579502
+    lambda_rec: 1.022245522270179
+    lambda_kl: 0.0005997100604405288
+    lambda_ssim: 0.31283044283769834
 
 CIFAR10:
   loss_fn_1:
