@@ -68,6 +68,7 @@ class Encoder(nn.Module):
     
 # Latent space and reparameterization trick
 def reparameterization_trick(mu: torch.Tensor, log_var: torch.Tensor):
+    log_var = torch.clamp(log_var, min=-10.0, max=10.0)
     # 1. Lấy độ lệch chuẩn
     stdev = torch.exp(0.5 * log_var)
 
