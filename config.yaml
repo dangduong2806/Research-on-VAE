@@ -5,7 +5,7 @@ patience: 5
 
 latent_features: 32
 
-learning_rate: 0.001
+learning_rate: 0.0005 
 num_epochs: 100
 lambda_rec: 1.0
 lambda_kl: 0.001 # ưu tiên reconstruction loss hơn
