@@ -1,0 +1,81 @@
+experiment:
+  name: vanilla_vae_image_128
+  seed: 42
+  device: auto
+
+data:
+  root: data/images
+
+  input_size: [32, 32]
+  in_channels: 3
+
+  resize_mode: resize
+  normalization: minus_one_to_one
+  interpolation: bilinear
+  fill_value: 0
+
+  split_mode: existing
+
+  train_dir_name: train
+  val_dir_name: val
+  test_dir_name: test
+
+  train_batch_size: 32
+  val_batch_size: 32
+  test_batch_size: 32
+
+  num_workers: 0
+  pin_memory: false
+  persistent_workers: false
+  prefetch_factor: 2
+
+  shuffle_train: true
+  drop_last_train: false
+
+  recursive: true
+  label_mode: parent_folder
+  
+model:
+  latent_dim: 128
+  encoder:
+    hidden_dims: [32, 64, 128, 256, 512]
+    kernel_size: 3
+    stride: 2
+    padding: 1
+    normalization: batch_norm
+    activation: leaky_relu
+    negative_slope: 0.01
+  decoder:
+    hidden_dims:
+        - 512
+        - 256
+        - 128
+        - 64
+        - 32
+    type: conv_transpose
+    output_channels: 3
+    output_activation: tanh
+    negative_slope: 0.01
+
+loss:
+  reconstruction: mse
+  reconstruction_reduction: mean
+  kld_reduction: mean
+  beta: 0.00025
+
+optimizer:
+  name: adam
+  learning_rate: 0.001
+  weight_decay: 0.0
+
+training:
+  epochs: 100
+  save_every: 5
+  validate_every: 1
+  learning_rate: 0.001
+  weight_decay: 0.0
+
+logging:
+  output_dir: outputs/vanilla_vae_image_128
+  log_images_every: 500
+  trace_shapes: true
