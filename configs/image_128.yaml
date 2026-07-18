@@ -74,6 +74,9 @@ training:
   validate_every: 1
   learning_rate: 0.001
   weight_decay: 0.0
+  
+  early_stopping_patience: 10
+  early_stopping_min_delta: 0.0
 
 logging:
   output_dir: outputs/vanilla_vae_image_128

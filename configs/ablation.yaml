@@ -1,0 +1,16 @@
+experiments:
+  - name: beta_0
+    config: configs/beta_0.yaml
+    checkpoint: outputs/vanilla_vae_image_128/checkpoints/beta_0/best.pt
+
+  - name: beta_0001
+    config: configs/beta_0001.yaml
+    checkpoint: outputs/vanilla_vae_image_128/checkpoints/beta_0001/best.pt
+
+  - name: beta_00025
+    config: configs/image_128.yaml
+    checkpoint: outputs/vanilla_vae_image_128/checkpoints/beta_00025/best.pt
+
+  - name: beta_001
+    config: configs/beta_001.yaml
+    checkpoint: outputs/vanilla_vae_image_128/checkpoints/beta_001/best.pt
